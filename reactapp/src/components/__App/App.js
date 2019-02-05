@@ -4,14 +4,15 @@ import { Route } from 'react-router-dom';
 import styled from 'styled-components';
 
 // Components
-import { ExampleComponent } from '../../components';
+import { Home } from '../../components';
 
 //Styles
 const AppContainer = styled.div`
 	display: flex;
 	max-width: 1280px;
 	height: 100vh;
-	background: #c7e8f1;
+	color: white;
+	background: #1a1a1a;
 	margin: 0 auto;
 `;
 
@@ -20,7 +21,7 @@ class App extends Component {
 		return (
 			<AppContainer>
 				{/* <Navbar /> */}
-				<Route exact path="/" component={ExampleComponent} />
+				<Route exact path="/" component={Home} />
 			</AppContainer>
 		);
 	}
