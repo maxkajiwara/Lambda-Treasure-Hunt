@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-//
-axios.defaults.headers.common['Authorization'] = `Token ${process.env.TOKEN}`;
+axios.defaults.headers.common['Authorization'] = `Token ${
+	process.env.REACT_APP_TOKEN
+}`;
 
 // move
 export const MOVE = 'MOVE';

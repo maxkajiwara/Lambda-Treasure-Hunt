@@ -1,6 +1,7 @@
 // Dependencies
 import React, { Component } from 'react';
-// import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+
 // import styled from 'styled-components';
 
 class Info extends Component {
@@ -9,4 +10,11 @@ class Info extends Component {
 	}
 }
 
-export default Info;
+const mapStateToProps = state => ({
+	status: state.mapReducer.status
+});
+
+export default connect(
+	mapStateToProps,
+	{}
+)(Info);

@@ -7,7 +7,7 @@ import styled from 'styled-components';
 const MapContainer = styled.div`
 	display: flex;
 	align-items: center;
-	height: 75%;
+	height: 70%;
 `;
 
 class Map extends Component {
@@ -17,6 +17,7 @@ class Map extends Component {
 		const map = JSON.parse(localStorage.getItem('map'));
 		this.setState({ map });
 	}
+
 	render() {
 		return <MapContainer>Map</MapContainer>;
 	}
