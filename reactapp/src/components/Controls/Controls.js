@@ -45,7 +45,7 @@ class Controls extends Component {
 				// Move to the next room.
 				this.props.move(this.props.path[0]);
 
-				// Else if autoDiscover is enabled and we've gotten a room from initialize:
+				// Else if autoDiscover is enabled and props.init returned our current room:
 			} else if (this.state.autoDiscover && this.props.currentRoom.room_id) {
 				// Trigger autoDiscover.
 				this.autoDiscover();
@@ -53,11 +53,11 @@ class Controls extends Component {
 		}
 	};
 
-	// Continue depth first traversal.
 	autoDiscover = () => {
 		console.log('autoDiscover triggered');
 
 		// Get coordinates.
+
 		const [x, y] = this.props.currentRoom.coordinates.slice(1, -2).split(',');
 
 		// If we have not discovered this room before:
@@ -74,7 +74,7 @@ class Controls extends Component {
 				w: { x: x - y, y }
 			};
 
-			// flip table
+			// flipped table
 			const anticompass = { n: 's', s: 'n', e: 'w', w: 'e' };
 
 			// Update connections to known rooms.
@@ -94,11 +94,12 @@ class Controls extends Component {
 			}
 
 			// Ship it off to the reducer.
-			this.props.updateMap({ x, y, localExits }, connections);
+			this.props.updateMap(
+				{ x, y, roomID, exits: localExits },
+				connections,
+				true
+			);
 		}
-
-		// Find the nearest unexplored exit. TODO: make this O(1)
-		let queue = [];
 	};
 
 	// localStorage.setItem('map', JSON.stringify(this.state.map)

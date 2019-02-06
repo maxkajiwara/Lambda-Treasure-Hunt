@@ -9,7 +9,8 @@ import {
 	CONFIRM_SALE,
 	CHECK_STATUS,
 	CHECK_STATUS_SUCCESS,
-	CHECK_STATUS_ERROR
+	CHECK_STATUS_ERROR,
+	UPDATE_MAP
 } from '../actions';
 
 const initialState = {
@@ -64,6 +65,18 @@ const mapReducer = (state = initialState, action) => {
 				...state,
 				gettingStatus: false,
 				checkStatusError: `${action.payload}`
+			};
+
+		// update map
+		case UPDATE_MAP:
+			const { newRoom, connections, autoDiscover } = action.payload;
+			const { x, y, roomID, exits } = newRoom;
+
+			return {
+				...state,
+				map: Object.assign([...state.map], {
+					[x]: Object.assign([...state.map[x]], { [y]: { roomID, exits } })
+				})
 			};
 
 		default:

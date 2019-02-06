@@ -32,6 +32,8 @@ export const CONFIRM_SALE_ERROR = 'CONFIRM_SALE_ERROR';
 export const CHECK_STATUS = 'CHECK_STATUS';
 export const CHECK_STATUS_SUCCESS = 'CHECK_STATUS_SUCCESS';
 export const CHECK_STATUS_ERROR = 'CHECK_STATUS_ERROR';
+// update map
+export const UPDATE_MAP = 'UPDATE_MAP';
 
 // Test loading messages
 function sleep(ms) {
@@ -159,5 +161,14 @@ export const checkStatus = () => {
 			})
 
 			.catch(error => dispatch({ type: CHECK_STATUS_ERROR, payload: error }));
+	};
+};
+
+export const updateMap = (newRoom, connections, autoDiscover) => {
+	return dispatch => {
+		dispatch({
+			type: UPDATE_MAP,
+			payload: { newRoom, connections, autoDiscover }
+		});
 	};
 };
