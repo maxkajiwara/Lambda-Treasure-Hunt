@@ -57,7 +57,6 @@ class Controls extends Component {
 		console.log('autoDiscover triggered');
 
 		// Get coordinates.
-
 		const [x, y] = this.props.currentRoom.coordinates.slice(1, -2).split(',');
 
 		// If we have not discovered this room before:
@@ -87,7 +86,7 @@ class Controls extends Component {
 				if (neighbor) {
 					// Assign a roomID to each shared exit.
 					localExits[e] = neighbor.roomID;
-					connections.push({ x: n.e.x, y: n.e.y, [anticompass.e]: roomID });
+					connections.push({ x: n.e.x, y: n.e.y, exit: anticompass.e, roomID });
 				} else {
 					localExits[e] = -1;
 				}

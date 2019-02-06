@@ -72,11 +72,19 @@ const mapReducer = (state = initialState, action) => {
 			const { newRoom, connections, autoDiscover } = action.payload;
 			const { x, y, roomID, exits } = newRoom;
 
+			// please work
+			newMap = Object.assign([...state.map], {
+				[x]: Object.assign([...state.map[x]], { [y]: { roomID, exits } })
+			});
+
+			// please work
+			for (let c in connections) {
+				newMap[c.x][c.y].exits[c.exit] = roomID;
+			}
+
 			return {
 				...state,
-				map: Object.assign([...state.map], {
-					[x]: Object.assign([...state.map[x]], { [y]: { roomID, exits } })
-				})
+				map: newMap
 			};
 
 		default:
