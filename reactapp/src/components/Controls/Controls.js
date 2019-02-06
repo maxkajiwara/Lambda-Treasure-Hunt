@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 // Actions
-import { checkStatus } from '../../actions';
+import { initialize, checkStatus, move } from '../../actions';
 
 import styled from 'styled-components';
 
@@ -28,65 +28,118 @@ const Button = styled.button``;
 
 class Controls extends Component {
 	state = {
-		map: {},
-		currentRoom: {},
-		stack: [],
-		traversal: [],
 		timer: null,
-		counter: 5
+		cooldown: 0,
+		autoDiscover: false
 	};
 
 	tick = () => {
 		this.setState({
-			counter: this.state.counter - 1
+			cooldown: this.state.cooldown - 1
 		});
+
+		// If cooldown has expired and not we're not awaiting a response:
+		if (this.state.count <= 0 && !this.props.busy) {
+			// If there's a path to follow:
+			if (this.props.path.length()) {
+				// Move to the next room.
+				this.props.move(this.props.path[0]);
+
+				// Else if autoDiscover is enabled and we've gotten a room from initialize:
+			} else if (this.state.autoDiscover && this.props.currentRoom.room_id) {
+				// Trigger autoDiscover.
+				this.autoDiscover();
+			}
+		}
 	};
 
-	// begin depth first traversal script
-	autoDiscover = currentRoom_id => {
-		const anticompass = { n: 's', s: 'n', e: 'w', w: 'e' };
+	// Continue depth first traversal.
+	autoDiscover = () => {
+		console.log('autoDiscover triggered');
 
-		while (this.counter === 0) {
-			console.log('autoDiscover triggered');
+		// Get coordinates.
+		const [x, y] = this.props.currentRoom.coordinates.slice(1, -2).split(',');
+
+		// If we have not discovered this room before:
+		if (!this.props.map[x][y]) {
+			// Get other info.
+			const exits = this.props.currentRoom.exits;
+			const roomID = this.props.currentRoom.room_id;
+
+			// neighbor table
+			const n = {
+				n: { x, y: y + 1 },
+				s: { x, y: y - 1 },
+				e: { x: x + 1, y },
+				w: { x: x - y, y }
+			};
+
+			// flip table
+			const anticompass = { n: 's', s: 'n', e: 'w', w: 'e' };
+
+			// Update connections to known rooms.
+			const localExits = {};
+			let connections = [];
+
+			for (let e in exits) {
+				const neighbor = this.props.map[n.e.x][n.e.y];
+				// If neighbor is known:
+				if (neighbor) {
+					// Assign a roomID to each shared exit.
+					localExits[e] = neighbor.roomID;
+					connections.push({ x: n.e.x, y: n.e.y, [anticompass.e]: roomID });
+				} else {
+					localExits[e] = -1;
+				}
+			}
+
+			// Ship it off to the reducer.
+			this.props.updateMap({ x, y, localExits }, connections);
 		}
+
+		// Find the nearest unexplored exit. TODO: make this O(1)
+		let queue = [];
 	};
 
 	// localStorage.setItem('map', JSON.stringify(this.state.map)
 
 	componentDidMount() {
+		// get current room
+		this.props.initialize();
+		// get cooldown and timestamp of last action
+		// const cooldown = JSON.parse(localStorage.getItem('cooldown'));
 		const map = JSON.parse(localStorage.getItem('map'));
-		const currentRoom = JSON.parse(localStorage.getItem('currentRoom'));
-		const stack = JSON.parse(localStorage.getItem('stack'));
-		const traversal = JSON.parse(localStorage.getItem('stack'));
-		const previousAction = JSON.parse(localStorage.getItem('previousAction'));
+		const path = JSON.parse(localStorage.getItem('path'));
+		// const traversal = JSON.parse(localStorage.getItem('traversal'));
 
 		const timer = setInterval(this.tick, 1000);
 
 		this.setState({
+			// cooldown,
 			map,
-			currentRoom,
-			stack,
-			traversal,
-			previousAction,
+			path,
 			timer
 		});
 	}
 
 	componentWillUnmount() {
 		this.clearInterval(this.state.timer);
+		localStorage.setItem('cooldown', JSON.stringify(this.state.cooldown));
 	}
 
 	render() {
 		return (
 			<ControlsContainer>
 				<Cooldown>
-					{this.state.counter >= 0
-						? `Cooldown: ${this.state.counter}s`
-						: `Cooldown: ${-this.state.counter}s ago`}
+					{this.state.cooldown >= 0
+						? `Cooldown: ${this.state.cooldown}s`
+						: `Cooldown: ${-this.state.cooldown}s ago`}
 				</Cooldown>
 				<Movement>
 					<Button
-						onClick={() => this.autoDiscover(this.props.currentRoom.room_id)}
+						onClick={() =>
+							this.setState({ autoDiscover: !this.state.autoDiscover })
+						}
 					>
 						Discover Rooms
 					</Button>
@@ -98,8 +151,8 @@ class Controls extends Component {
 				<Actions>
 					<Button>Auto Sell</Button>
 					<Button>Set Max Encumbrance</Button>
-					<Button onClick={this.props.checkStatus}>Update Status</Button>
-					<Button>Choose a Name</Button>
+					<Button onClick={this.props.initialize}>Update Status</Button>
+					<Button onClick={() => this.props.move('s')}>Choose a Name</Button>
 				</Actions>
 			</ControlsContainer>
 		);
@@ -112,5 +165,5 @@ const mapStateToProps = state => ({
 
 export default connect(
 	mapStateToProps,
-	{ checkStatus }
+	{ initialize, checkStatus, move }
 )(Controls);
