@@ -14,7 +14,7 @@ import {
 } from '../actions';
 
 const initialState = {
-	map: [],
+	map: {},
 	currentRoom: {},
 	previousAction: 0
 };
@@ -70,21 +70,23 @@ const mapReducer = (state = initialState, action) => {
 		// update map
 		case UPDATE_MAP:
 			const { newRoom, connections, autoDiscover } = action.payload;
-			const { x, y, roomID, exits } = newRoom;
+			const { coords, roomID, exits } = newRoom;
 
-			// please work
-			newMap = Object.assign([...state.map], {
-				[x]: Object.assign([...state.map[x]], { [y]: { roomID, exits } })
-			});
+			const newMap = { ...state.map };
 
-			// please work
 			for (let c in connections) {
-				newMap[c.x][c.y].exits[c.exit] = roomID;
+				newMap = {
+					...newMap,
+					[c.coords]: {
+						...newMap[c.coords],
+						exits: { ...newMap[c.coords].exits, [c.exit]: c.roomID }
+					}
+				};
 			}
 
 			return {
 				...state,
-				map: newMap
+				map: { ...newMap, [coords]: { roomID, exits } }
 			};
 
 		default:

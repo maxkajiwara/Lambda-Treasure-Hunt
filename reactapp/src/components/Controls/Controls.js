@@ -53,51 +53,90 @@ class Controls extends Component {
 		}
 	};
 
+	getNeighbor = (coords, direction) => {
+		const [x, y] = coords.slice(1, -2).split(',');
+		const neighbor = {
+			n: `(${x},${y + 1})`,
+			s: `(${x},${y - 1})`,
+			e: `(${x + 1},${y})`,
+			w: `(${x - 1},${y})`
+		};
+
+		return neighbor[direction];
+	};
+
+	anticompass = direction => {
+		const swap = { n: 's', s: 'n', e: 'w', w: 'e' };
+
+		return swap(direction);
+	};
+
 	autoDiscover = () => {
 		console.log('autoDiscover triggered');
 
 		// Get coordinates.
-		const [x, y] = this.props.currentRoom.coordinates.slice(1, -2).split(',');
+		const coords = this.props.currentRoom.coordinates;
+
+		const move = null;
 
 		// If we have not discovered this room before:
-		if (!this.props.map[x][y]) {
+		if (!this.props.map[coords]) {
 			// Get other info.
 			const exits = this.props.currentRoom.exits;
 			const roomID = this.props.currentRoom.room_id;
-
-			// neighbor table
-			const n = {
-				n: { x, y: y + 1 },
-				s: { x, y: y - 1 },
-				e: { x: x + 1, y },
-				w: { x: x - y, y }
-			};
-
-			// flipped table
-			const anticompass = { n: 's', s: 'n', e: 'w', w: 'e' };
 
 			// Update connections to known rooms.
 			const localExits = {};
 			let connections = [];
 
-			for (let e in exits) {
-				const neighbor = this.props.map[n.e.x][n.e.y];
+			for (let exit in exits) {
+				const neighbor = this.props.map[this.getNeighbor(coords, exit)];
 				// If neighbor is known:
 				if (neighbor) {
 					// Assign a roomID to each shared exit.
-					localExits[e] = neighbor.roomID;
-					connections.push({ x: n.e.x, y: n.e.y, exit: anticompass.e, roomID });
+					localExits[exit] = neighbor.roomID;
+					connections.push({
+						coords: this.getNeighbor(coords, exit),
+						exit: anticompass(exit),
+						roomID
+					});
 				} else {
-					localExits[e] = -1;
+					localExits[exit] = -1;
+				}
+			}
+
+			for (let [key, value] in Object.entries(localExits)) {
+				if (value === -1) {
+					move = key;
+					break;
 				}
 			}
 
 			// Ship it off to the reducer.
 			this.props.updateMap(
-				{ x, y, roomID, exits: localExits },
+				{ coords, roomID, exits: localExits },
 				connections,
 				true
 			);
+		}
+
+		if (move) {
+			this.props.move(move);
+		} else {
+			let currentCoords = coords;
+			let visited = new Set();
+			let queue = ['start'];
+
+			while (queue.length()) {
+				let path = queue.shift();
+				let room = this.props.map[path[-1]];
+
+				for (let exit in room.exits) {
+					if (visited.has(this.getNeighbor(currentCoords, exit))) {
+						let new_path = zzzz;
+					}
+				}
+			}
 		}
 	};
 
