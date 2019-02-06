@@ -97,7 +97,7 @@ class Controls extends Component {
 					localExits[exit] = neighbor.roomID;
 					connections.push({
 						coords: this.getNeighbor(coords, exit),
-						exit: anticompass(exit),
+						exit: this.anticompass(exit),
 						roomID
 					});
 				} else {
@@ -123,20 +123,44 @@ class Controls extends Component {
 		if (move) {
 			this.props.move(move);
 		} else {
-			let currentCoords = coords;
+			// Breadth first search for nearest room with unexplored exits
 			let visited = new Set();
-			let queue = ['start'];
+			let queue = [{ coords, cameFrom: null }];
 
-			while (queue.length()) {
+			while (!move && queue.length()) {
 				let path = queue.shift();
-				let room = this.props.map[path[-1]];
+				let room = this.props.map[path[-1].coords];
 
 				for (let exit in room.exits) {
-					if (visited.has(this.getNeighbor(currentCoords, exit))) {
-						let new_path = zzzz;
+					let neighbor = this.getNeighbor(room.coords, exit);
+
+					if (visited.has(neighbor)) {
+						let new_path = [...path, { coords: neighbor, cameFrom: exit }];
+
+						for (let [key, value] in Object.entries(
+							this.props.map[neighbor].exits
+						)) {
+							if (value === -1) {
+								move = [...new_path, { cameFrom: key }];
+								break;
+							} else {
+								queue.push(new_path);
+							}
+						}
 					}
+
+					if (move) break;
 				}
 			}
+		}
+
+		if (move) {
+			this.props.move(move);
+		} else {
+			this.setState({
+				autoDiscover: false,
+				message: 'All rooms discovered'
+			});
 		}
 	};
 
@@ -199,7 +223,8 @@ class Controls extends Component {
 }
 
 const mapStateToProps = state => ({
-	currentRoom: state.mapReducer.currentRoom
+	currentRoom: state.mapReducer.currentRoom,
+	map: state.mapReducer.map
 });
 
 export default connect(

@@ -16,7 +16,7 @@ import {
 const initialState = {
 	map: {},
 	currentRoom: {},
-	previousAction: 0
+	cooldown: 0
 };
 
 const mapReducer = (state = initialState, action) => {
