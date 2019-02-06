@@ -4,6 +4,10 @@ axios.defaults.headers.common['Authorization'] = `Token ${
 	process.env.REACT_APP_TOKEN
 }`;
 
+// initialize
+export const INIT = 'INIT';
+export const INIT_SUCCESS = 'INIT_SUCCESS';
+export const INIT_ERROR = 'INIT_ERROR';
 // move
 export const MOVE = 'MOVE';
 export const MOVE_SUCCESS = 'MOVE_SUCCESS';
@@ -33,6 +37,22 @@ export const CHECK_STATUS_ERROR = 'CHECK_STATUS_ERROR';
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export const initialize = () => {
+	return dispatch => {
+		dispatch({ type: INIT });
+
+		axios
+			.get('https://lambda-treasure-hunt.herokuapp.com/api/adv/init/')
+
+			.then(async ({ data }) => {
+				await sleep(1000);
+				dispatch({ type: INIT_SUCCESS, payload: data });
+			})
+
+			.catch(error => dispatch({ type: INIT_ERROR, payload: error }));
+	};
+};
 
 export const move = (direction, next_room_id) => {
 	return dispatch => {
