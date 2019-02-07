@@ -50,12 +50,13 @@ class Controls extends Component {
 			if (this.props.path.length()) {
 				// Move to the next room.
 				this.move(this.props.path[0]);
-
-				// Else if autoDiscover is enabled and props.init returned our current room:
-			} else if (this.state.autoDiscover && this.props.currentRoom.room_id) {
-				// Trigger autoDiscover.
-				this.autoDiscover();
 			}
+
+			// // If autoDiscover is enabled:
+			// else if (this.state.autoDiscover && this.props.currentRoom.room_id) {
+			// 	// Trigger autoDiscover.
+			// 	this.autoDiscover();
+			// }
 		}
 	};
 
@@ -78,13 +79,20 @@ class Controls extends Component {
 	};
 
 	cdReset = cooldown => {
+		// Reset the cooldown timer
 		this.setState({
 			cooldown: cooldown || this.props.cooldown
 		});
+
+		// If autoDiscover is enabled:
+		if (this.state.autoDiscover && this.props.currentRoom.room_id) {
+			// Trigger autoDiscover.
+			this.autoDiscover();
+		}
 	};
 
 	move = (direction, prediction) => {
-		this.props.move(direction, prediction, this.cdReset);
+		this.props.move([direction, prediction], this.cdReset);
 	};
 
 	autoDiscover = () => {
@@ -123,7 +131,7 @@ class Controls extends Component {
 
 			for (let [key, value] in Object.entries(localExits)) {
 				if (value === -1) {
-					move = key;
+					move = [[key]];
 					break;
 				}
 			}
@@ -132,28 +140,27 @@ class Controls extends Component {
 			this.props.updateMap({ coords, roomID, exits: localExits }, connections);
 		}
 
-		if (move) {
-			this.move(move);
-		} else {
+		if (!move) {
 			// Breadth first search for nearest room with unexplored exits
 			let visited = new Set();
-			let queue = [{ coords, cameFrom: null }];
+			// Just trust me on this one
+			let queue = [[[null, coords]]];
 
 			while (!move && queue.length()) {
 				let path = queue.shift();
-				let room = this.props.map[path[-1].coords];
+				let room = this.props.map[path[-1][1]];
 
 				for (let exit in room.exits) {
 					let neighbor = this.getNeighbor(room.coords, exit);
 
-					if (visited.has(neighbor)) {
-						let new_path = [...path, { coords: neighbor, cameFrom: exit }];
+					if (!visited.has(neighbor)) {
+						let new_path = [...path, [exit, neighbor]];
 
 						for (let [key, value] in Object.entries(
 							this.props.map[neighbor].exits
 						)) {
 							if (value === -1) {
-								move = [...new_path, { cameFrom: key }];
+								move = [...new_path, [key]];
 								break;
 							} else {
 								queue.push(new_path);
@@ -167,7 +174,7 @@ class Controls extends Component {
 		}
 
 		if (move) {
-			this.move(move);
+			this.updatePath(move);
 		} else {
 			this.setState({
 				autoDiscover: false,
@@ -241,7 +248,9 @@ const mapStateToProps = state => ({
 	map: state.mapReducer.map,
 	path: state.mapReducer.path,
 	currentRoom: state.mapReducer.currentRoom,
-	cooldown: state.mapReducer.cooldown
+	cooldown: state.mapReducer.cooldown,
+
+	busy: state.mapReducer.busy
 });
 
 export default connect(

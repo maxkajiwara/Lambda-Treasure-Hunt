@@ -33,13 +33,15 @@ const mapReducer = (state = initialState, action) => {
 			};
 
 		case INIT_SUCCESS:
+			const { currentRoom, map, path } = action.payload;
+
 			return {
 				...state,
 				Initializing: false,
-				currentRoom: action.payload,
-				cooldown: action.payload.cooldown,
-				map: action.map || {},
-				path: action.path || []
+				currentRoom,
+				cooldown: currentRoom.cooldown,
+				map: map || {},
+				path: path || []
 			};
 
 		case INIT_ERROR:
@@ -62,6 +64,7 @@ const mapReducer = (state = initialState, action) => {
 				...state,
 				moving: false,
 				currentRoom: action.payload,
+				path: state.path.slice(1),
 				cooldown: action.payload.cooldown
 			};
 

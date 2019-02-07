@@ -51,14 +51,33 @@ export const initialize = (map, path) => {
 
 			.then(async ({ data }) => {
 				await sleep(1000);
-				dispatch({ type: INIT_SUCCESS, payload: data, map, path });
+				dispatch({
+					type: INIT_SUCCESS,
+					payload: { currentRoom: data, map, path }
+				});
 			})
 
 			.catch(error => dispatch({ type: INIT_ERROR, payload: error }));
 	};
 };
 
-export const move = (direction, prediction, callback) => {
+export const checkStatus = () => {
+	return dispatch => {
+		dispatch({ type: CHECK_STATUS });
+
+		axios
+			.post('https://lambda-treasure-hunt.herokuapp.com/api/adv/status/')
+
+			.then(async ({ data }) => {
+				await sleep(1000);
+				dispatch({ type: CHECK_STATUS_SUCCESS, payload: data });
+			})
+
+			.catch(error => dispatch({ type: CHECK_STATUS_ERROR, payload: error }));
+	};
+};
+
+export const move = ([direction, prediction], callback) => {
 	return dispatch => {
 		dispatch({ type: MOVE });
 
@@ -148,22 +167,6 @@ export const confirmSale = name => {
 			})
 
 			.catch(error => dispatch({ type: CONFIRM_SALE_ERROR, payload: error }));
-	};
-};
-
-export const checkStatus = () => {
-	return dispatch => {
-		dispatch({ type: CHECK_STATUS });
-
-		axios
-			.post('https://lambda-treasure-hunt.herokuapp.com/api/adv/status/')
-
-			.then(async ({ data }) => {
-				await sleep(1000);
-				dispatch({ type: CHECK_STATUS_SUCCESS, payload: data });
-			})
-
-			.catch(error => dispatch({ type: CHECK_STATUS_ERROR, payload: error }));
 	};
 };
 
