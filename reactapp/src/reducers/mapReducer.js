@@ -56,8 +56,7 @@ const mapReducer = (state = initialState, action) => {
 			return {
 				...state,
 				moving: true,
-				busy: true,
-				currentRoom: action.payload
+				busy: true
 			};
 
 		case MOVE_SUCCESS:
