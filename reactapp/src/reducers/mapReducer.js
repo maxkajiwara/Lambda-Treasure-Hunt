@@ -104,8 +104,11 @@ const mapReducer = (state = initialState, action) => {
 			const { coords, roomID, exits } = newRoom;
 
 			let newMap = { ...state.map };
+			console.log('connections:', connections);
 
-			for (let c in connections) {
+			connections.forEach(c => {
+				console.log('newMap[c.coords]:', newMap[c.coords]);
+				console.log('newMap[c.coords].exits:', newMap[c.coords].exits);
 				newMap = {
 					...newMap,
 					[c.coords]: {
@@ -113,7 +116,7 @@ const mapReducer = (state = initialState, action) => {
 						exits: { ...newMap[c.coords].exits, [c.exit]: c.roomID }
 					}
 				};
-			}
+			});
 
 			return {
 				...state,
