@@ -56,6 +56,7 @@ const mapReducer = (state = initialState, action) => {
 			return {
 				...state,
 				moving: true,
+				busy: true,
 				currentRoom: action.payload
 			};
 
@@ -63,6 +64,7 @@ const mapReducer = (state = initialState, action) => {
 			return {
 				...state,
 				moving: false,
+				busy: false,
 				currentRoom: action.payload,
 				path: state.path.slice(1),
 				cooldown: action.payload.cooldown
@@ -118,11 +120,20 @@ const mapReducer = (state = initialState, action) => {
 				map: { ...newMap, [coords]: { roomID, exits } }
 			};
 
-		// check status
+		// update path
 		case UPDATE_PATH:
+			// Convert coords to room ids
+			const wisepath = action.payload.map(move => {
+				if (!move[1]) {
+					return move;
+				} else {
+					return [move[0], state.map[1].roomID];
+				}
+			});
+
 			return {
 				...state,
-				path: action.payload
+				path: wisepath
 			};
 
 		default:
