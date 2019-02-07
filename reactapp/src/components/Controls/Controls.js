@@ -91,7 +91,11 @@ class Controls extends Component {
 		});
 
 		// If autoDiscover is enabled:
-		if (this.state.autoDiscover && this.props.currentRoom.room_id) {
+		if (
+			this.state.autoDiscover &&
+			!this.props.path.length &&
+			this.props.currentRoom.room_id
+		) {
 			// Trigger autoDiscover.
 			this.autoDiscover();
 		}
