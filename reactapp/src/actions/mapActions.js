@@ -34,13 +34,15 @@ export const CHECK_STATUS_SUCCESS = 'CHECK_STATUS_SUCCESS';
 export const CHECK_STATUS_ERROR = 'CHECK_STATUS_ERROR';
 // update map
 export const UPDATE_MAP = 'UPDATE_MAP';
+// update path
+export const UPDATE_PATH = 'UPDATE_PATH';
 
 // Test loading messages
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export const initialize = () => {
+export const initialize = (map, path) => {
 	return dispatch => {
 		dispatch({ type: INIT });
 
@@ -49,26 +51,27 @@ export const initialize = () => {
 
 			.then(async ({ data }) => {
 				await sleep(1000);
-				dispatch({ type: INIT_SUCCESS, payload: data });
+				dispatch({ type: INIT_SUCCESS, payload: data, map, path });
 			})
 
 			.catch(error => dispatch({ type: INIT_ERROR, payload: error }));
 	};
 };
 
-export const move = (direction, next_room_id) => {
+export const move = (direction, prediction, callback) => {
 	return dispatch => {
 		dispatch({ type: MOVE });
 
 		axios
 			.post('https://lambda-treasure-hunt.herokuapp.com/api/adv/move/', {
 				direction,
-				next_room_id
+				prediction
 			})
 
 			.then(async ({ data }) => {
 				await sleep(1000);
 				dispatch({ type: MOVE_SUCCESS, payload: data });
+				callback(data.cooldown);
 			})
 
 			.catch(error => dispatch({ type: MOVE_ERROR, payload: error }));
@@ -164,11 +167,20 @@ export const checkStatus = () => {
 	};
 };
 
-export const updateMap = (newRoom, connections, autoDiscover) => {
+export const updateMap = (newRoom, connections) => {
 	return dispatch => {
 		dispatch({
 			type: UPDATE_MAP,
-			payload: { newRoom, connections, autoDiscover }
+			payload: { newRoom, connections }
+		});
+	};
+};
+
+export const updatePath = path => {
+	return dispatch => {
+		dispatch({
+			type: UPDATE_PATH,
+			payload: path
 		});
 	};
 };

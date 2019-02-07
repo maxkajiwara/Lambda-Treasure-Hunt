@@ -3,7 +3,13 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 // Actions
-import { initialize, checkStatus, move } from '../../actions';
+import {
+	initialize,
+	checkStatus,
+	move,
+	updateMap,
+	updatePath
+} from '../../actions';
 
 import styled from 'styled-components';
 
@@ -43,7 +49,7 @@ class Controls extends Component {
 			// If there's a path to follow:
 			if (this.props.path.length()) {
 				// Move to the next room.
-				this.props.move(this.props.path[0]);
+				this.move(this.props.path[0]);
 
 				// Else if autoDiscover is enabled and props.init returned our current room:
 			} else if (this.state.autoDiscover && this.props.currentRoom.room_id) {
@@ -71,13 +77,23 @@ class Controls extends Component {
 		return swap(direction);
 	};
 
+	cdReset = cooldown => {
+		this.setState({
+			cooldown: cooldown || this.props.cooldown
+		});
+	};
+
+	move = (direction, prediction) => {
+		this.props.move(direction, prediction, this.cdReset);
+	};
+
 	autoDiscover = () => {
 		console.log('autoDiscover triggered');
 
 		// Get coordinates.
 		const coords = this.props.currentRoom.coordinates;
 
-		const move = null;
+		let move = null;
 
 		// If we have not discovered this room before:
 		if (!this.props.map[coords]) {
@@ -113,15 +129,11 @@ class Controls extends Component {
 			}
 
 			// Ship it off to the reducer.
-			this.props.updateMap(
-				{ coords, roomID, exits: localExits },
-				connections,
-				true
-			);
+			this.props.updateMap({ coords, roomID, exits: localExits }, connections);
 		}
 
 		if (move) {
-			this.props.move(move);
+			this.move(move);
 		} else {
 			// Breadth first search for nearest room with unexplored exits
 			let visited = new Set();
@@ -155,7 +167,7 @@ class Controls extends Component {
 		}
 
 		if (move) {
-			this.props.move(move);
+			this.move(move);
 		} else {
 			this.setState({
 				autoDiscover: false,
@@ -167,20 +179,23 @@ class Controls extends Component {
 	// localStorage.setItem('map', JSON.stringify(this.state.map)
 
 	componentDidMount() {
-		// get current room
-		this.props.initialize();
-		// get cooldown and timestamp of last action
-		// const cooldown = JSON.parse(localStorage.getItem('cooldown'));
+		// Get info from localStorage
 		const map = JSON.parse(localStorage.getItem('map'));
 		const path = JSON.parse(localStorage.getItem('path'));
+
+		// Send map & path to the store and get current room
+		this.props.initialize(map, path);
+
+		// Get status
+		this.props.checkStatus();
+
+		// get cooldown and timestamp of last action
+		// const cooldown = JSON.parse(localStorage.getItem('cooldown'));
 		// const traversal = JSON.parse(localStorage.getItem('traversal'));
 
 		const timer = setInterval(this.tick, 1000);
 
 		this.setState({
-			// cooldown,
-			map,
-			path,
 			timer
 		});
 	}
@@ -214,8 +229,8 @@ class Controls extends Component {
 				<Actions>
 					<Button>Auto Sell</Button>
 					<Button>Set Max Encumbrance</Button>
-					<Button onClick={this.props.initialize}>Update Status</Button>
-					<Button onClick={() => this.props.move('s')}>Choose a Name</Button>
+					<Button onClick={this.props.checkStatus}>Update Status</Button>
+					<Button>Choose a Name</Button>
 				</Actions>
 			</ControlsContainer>
 		);
@@ -223,11 +238,13 @@ class Controls extends Component {
 }
 
 const mapStateToProps = state => ({
+	map: state.mapReducer.map,
+	path: state.mapReducer.path,
 	currentRoom: state.mapReducer.currentRoom,
-	map: state.mapReducer.map
+	cooldown: state.mapReducer.cooldown
 });
 
 export default connect(
 	mapStateToProps,
-	{ initialize, checkStatus, move }
+	{ initialize, checkStatus, move, updateMap, updatePath }
 )(Controls);

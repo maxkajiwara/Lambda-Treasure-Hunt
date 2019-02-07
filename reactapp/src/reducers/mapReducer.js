@@ -3,6 +3,8 @@ import {
 	INIT_SUCCESS,
 	INIT_ERROR,
 	MOVE,
+	MOVE_SUCCESS,
+	MOVE_ERROR,
 	TAKE_TREASURE,
 	DROP_TREASURE,
 	SELL_TREASURE,
@@ -10,11 +12,13 @@ import {
 	CHECK_STATUS,
 	CHECK_STATUS_SUCCESS,
 	CHECK_STATUS_ERROR,
-	UPDATE_MAP
+	UPDATE_MAP,
+	UPDATE_PATH
 } from '../actions';
 
 const initialState = {
 	map: {},
+	path: [],
 	currentRoom: {},
 	cooldown: 0
 };
@@ -25,26 +29,48 @@ const mapReducer = (state = initialState, action) => {
 		case INIT:
 			return {
 				...state,
-				gettingStatus: true
+				Initializing: true
 			};
 
 		case INIT_SUCCESS:
 			return {
 				...state,
-				gettingStatus: false,
-				status: action.payload
+				Initializing: false,
+				currentRoom: action.payload,
+				cooldown: action.payload.cooldown,
+				map: action.map || {},
+				path: action.path || []
 			};
 
 		case INIT_ERROR:
 			return {
 				...state,
-				gettingStatus: false,
-				checkStatusError: `${action.payload}`
+				Initializing: false,
+				InitError: `${action.payload}`
 			};
 
 		// move
 		case MOVE:
-			return { ...state, currentRoom: action.payload };
+			return {
+				...state,
+				moving: true,
+				currentRoom: action.payload
+			};
+
+		case MOVE_SUCCESS:
+			return {
+				...state,
+				moving: false,
+				currentRoom: action.payload,
+				cooldown: action.payload.cooldown
+			};
+
+		case MOVE_ERROR:
+			return {
+				...state,
+				moving: false,
+				checkStatusError: `${action.payload}`
+			};
 
 		// check status
 		case CHECK_STATUS:
@@ -69,10 +95,10 @@ const mapReducer = (state = initialState, action) => {
 
 		// update map
 		case UPDATE_MAP:
-			const { newRoom, connections, autoDiscover } = action.payload;
+			const { newRoom, connections } = action.payload;
 			const { coords, roomID, exits } = newRoom;
 
-			const newMap = { ...state.map };
+			let newMap = { ...state.map };
 
 			for (let c in connections) {
 				newMap = {
@@ -87,6 +113,13 @@ const mapReducer = (state = initialState, action) => {
 			return {
 				...state,
 				map: { ...newMap, [coords]: { roomID, exits } }
+			};
+
+		// check status
+		case UPDATE_PATH:
+			return {
+				...state,
+				path: action.payload
 			};
 
 		default:
