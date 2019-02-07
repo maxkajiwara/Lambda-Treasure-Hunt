@@ -125,11 +125,12 @@ class Controls extends Component {
 
 			exits.forEach(exit => {
 				const neighbor = this.props.map[this.getNeighbor(coords, exit)];
-				console.log(
-					`Neighbor ${exit} ${this.getNeighbor(coords, exit)} is ${
-						neighbor ? 'discovered' : 'undiscovered'
-					}`
-				);
+				// console.log(
+				// 	`Neighbor ${exit} ${this.getNeighbor(coords, exit)} is ${
+				// 		neighbor ? 'known' : 'undiscovered'
+				// 	}`
+				// );
+
 				// If neighbor is known:
 				if (neighbor) {
 					// Assign a roomID to each shared exit.
@@ -140,7 +141,7 @@ class Controls extends Component {
 						roomID
 					});
 				} else {
-					localExits[exit] = -1;
+					localExits[exit] = '?';
 					if (!move.length) {
 						move.push([exit]);
 					}
@@ -151,7 +152,7 @@ class Controls extends Component {
 
 			// This is returning numbers for some reason - 0, 1, 2, 3
 			// for (let exit in Object.keys(localExits)) {
-			// 	if (localExits[exit] === -1) {
+			// 	if (localExits[exit] === '?') {
 			// 		move = [[exit]];
 			// 		break;
 			// 	}
@@ -191,18 +192,20 @@ class Controls extends Component {
 						const neighbor = this.props.map[neighborCoords];
 
 						if (neighbor) {
-							for (let [key, value] in Object.entries(neighbor.exits)) {
-								console.log('[key, value]', [key, value]);
+							console.log('Checking exits', neighbor.exits);
 
-								if (value === -1) {
-									move = [...newPath.slice(1), [key]];
-									break;
+							Object.entries(neighbor.exits).forEach(([key, value]) => {
+								if (value === '?') {
+									console.log('Found an unexplored exit.', key);
+									if (!move.length) {
+										move = [...newPath.slice(1), [key]];
+									}
 								} else {
 									queue.push(newPath);
 								}
-							}
+							});
 						} else {
-							move = [...newPath.slice(1), [exit]];
+							move = [...newPath.slice(1, -1), [exit]];
 						}
 						if (move.length) break;
 					}
