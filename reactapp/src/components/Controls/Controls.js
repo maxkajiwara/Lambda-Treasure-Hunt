@@ -64,7 +64,10 @@ class Controls extends Component {
 	};
 
 	getNeighbor = (coords, direction) => {
-		const [x, y] = coords.slice(1, -2).split(',');
+		let [x, y] = coords.slice(1, -1).split(',');
+		// Turn the strings into numbers to prevent Bad Things from happening
+		x = +x;
+		y = +y;
 		const neighbor = {
 			n: `(${x},${y + 1})`,
 			s: `(${x},${y - 1})`,
@@ -104,22 +107,29 @@ class Controls extends Component {
 		// Get coordinates.
 		const coords = this.props.currentRoom.coordinates;
 
-		console.log('coords:', this.props.currentRoom.coordinates);
+		console.log('Current coords:', this.props.currentRoom.coordinates);
 
 		let move = [];
 
 		// If we have not discovered this room before:
 		if (!this.props.map[coords]) {
+			console.log('New room discovered!');
+
 			// Get other info.
 			const exits = this.props.currentRoom.exits;
 			const roomID = this.props.currentRoom.room_id;
 
-			// Update connections to known rooms.
+			// Update connections to known rooms:
 			const localExits = {};
 			let connections = [];
 
 			exits.forEach(exit => {
 				const neighbor = this.props.map[this.getNeighbor(coords, exit)];
+				console.log(
+					`Neighbor ${exit} ${this.getNeighbor(coords, exit)} is ${
+						neighbor ? 'discovered' : 'undiscovered'
+					}`
+				);
 				// If neighbor is known:
 				if (neighbor) {
 					// Assign a roomID to each shared exit.
@@ -157,37 +167,52 @@ class Controls extends Component {
 			// Just trust me on this one
 			let queue = [[[null, coords]]];
 
-			while (!move && queue.length) {
+			while (!move.length && queue.length) {
 				// Dequeue a path
+				console.log('queue length', queue.length);
+
 				let path = queue.shift();
+
+				console.log('path', path);
+
 				// Get the last room in the path so far
-				let room = this.props.map[path[path.length - 1][1]];
+				const roomCoords = path[path.length - 1][1];
+				const room = this.props.map[roomCoords];
+				console.log('room', room);
 
 				for (let exit in room.exits) {
-					let neighbor = this.getNeighbor(room.coords, exit);
+					const neighborCoords = this.getNeighbor(roomCoords, exit);
+					console.log('neighborCoords', neighborCoords);
 
-					if (!visited.has(neighbor)) {
-						let new_path = [...path, [exit, neighbor]];
+					if (!visited.has(neighborCoords)) {
+						let newPath = [...path, [exit, neighborCoords]];
+						console.log('newPath', newPath);
 
-						for (let [key, value] in Object.entries(
-							this.props.map[neighbor].exits
-						)) {
-							if (value === -1) {
-								move = [...new_path, [key]];
-								break;
-							} else {
-								queue.push(new_path);
+						const neighbor = this.props.map[neighborCoords];
+
+						if (neighbor) {
+							for (let [key, value] in Object.entries(neighbor.exits)) {
+								console.log('[key, value]', [key, value]);
+
+								if (value === -1) {
+									move = [...newPath.slice(1), [key]];
+									break;
+								} else {
+									queue.push(newPath);
+								}
 							}
+						} else {
+							move = [...newPath.slice(1), [exit]];
 						}
+						if (move.length) break;
 					}
-
 					if (move.length) break;
 				}
 			}
 		}
 
 		if (move.length) {
-			console.log('Next move:', move[0]);
+			console.log('Next path:', move[0]);
 
 			this.props.updatePath(move);
 		} else {
@@ -195,6 +220,9 @@ class Controls extends Component {
 				autoDiscover: false,
 				message: 'All rooms discovered'
 			});
+
+			console.log('autoDiscover', this.state.autoDiscover);
+			console.log('All rooms discovered');
 		}
 	};
 
