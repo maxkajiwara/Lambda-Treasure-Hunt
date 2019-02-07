@@ -45,18 +45,21 @@ class Controls extends Component {
 		});
 
 		// If cooldown has expired and not we're not awaiting a response:
-		if (this.state.count <= 0 && !this.props.busy) {
+		if (this.state.cooldown <= 0 && !this.props.busy) {
 			// If there's a path to follow:
-			if (this.props.path.length()) {
+			if (this.props.path.length) {
 				// Move to the next room.
 				this.move(this.props.path[0]);
 			}
 
 			// // If autoDiscover is enabled:
-			// else if (this.state.autoDiscover && this.props.currentRoom.room_id) {
-			// 	// Trigger autoDiscover.
-			// 	this.autoDiscover();
-			// }
+			else if (
+				this.state.autoDiscover &&
+				this.props.currentRoom.room_id !== undefined
+			) {
+				// Trigger autoDiscover.
+				this.autoDiscover();
+			}
 		}
 	};
 
@@ -75,7 +78,7 @@ class Controls extends Component {
 	anticompass = direction => {
 		const swap = { n: 's', s: 'n', e: 'w', w: 'e' };
 
-		return swap(direction);
+		return swap[direction];
 	};
 
 	cdReset = cooldown => {
@@ -91,7 +94,7 @@ class Controls extends Component {
 		}
 	};
 
-	move = (direction, prediction) => {
+	move = ([direction, prediction]) => {
 		this.props.move([direction, prediction], this.cdReset);
 	};
 
@@ -101,7 +104,9 @@ class Controls extends Component {
 		// Get coordinates.
 		const coords = this.props.currentRoom.coordinates;
 
-		let move = null;
+		console.log('coords:', this.props.currentRoom.coordinates);
+
+		let move = [];
 
 		// If we have not discovered this room before:
 		if (!this.props.map[coords]) {
@@ -113,7 +118,7 @@ class Controls extends Component {
 			const localExits = {};
 			let connections = [];
 
-			for (let exit in exits) {
+			exits.forEach(exit => {
 				const neighbor = this.props.map[this.getNeighbor(coords, exit)];
 				// If neighbor is known:
 				if (neighbor) {
@@ -126,29 +131,37 @@ class Controls extends Component {
 					});
 				} else {
 					localExits[exit] = -1;
+					if (!move.length) {
+						move.push([exit]);
+					}
 				}
-			}
+			});
 
-			for (let [key, value] in Object.entries(localExits)) {
-				if (value === -1) {
-					move = [[key]];
-					break;
-				}
-			}
+			console.log("New room's exits:", localExits);
+
+			// This is returning numbers for some reason - 0, 1, 2, 3
+			// for (let exit in Object.keys(localExits)) {
+			// 	if (localExits[exit] === -1) {
+			// 		move = [[exit]];
+			// 		break;
+			// 	}
+			// }
 
 			// Ship it off to the reducer.
 			this.props.updateMap({ coords, roomID, exits: localExits }, connections);
 		}
 
-		if (!move) {
+		if (!move.length) {
 			// Breadth first search for nearest room with unexplored exits
 			let visited = new Set();
 			// Just trust me on this one
 			let queue = [[[null, coords]]];
 
-			while (!move && queue.length()) {
+			while (!move && queue.length) {
+				// Dequeue a path
 				let path = queue.shift();
-				let room = this.props.map[path[-1][1]];
+				// Get the last room in the path so far
+				let room = this.props.map[path[path.length - 1][1]];
 
 				for (let exit in room.exits) {
 					let neighbor = this.getNeighbor(room.coords, exit);
@@ -168,13 +181,15 @@ class Controls extends Component {
 						}
 					}
 
-					if (move) break;
+					if (move.length) break;
 				}
 			}
 		}
 
-		if (move) {
-			this.updatePath(move);
+		if (move.length) {
+			console.log('Next move:', move[0]);
+
+			this.props.updatePath(move);
 		} else {
 			this.setState({
 				autoDiscover: false,
@@ -216,15 +231,18 @@ class Controls extends Component {
 		return (
 			<ControlsContainer>
 				<Cooldown>
-					{this.state.cooldown >= 0
+					{this.props.busy
+						? 'Working...'
+						: this.state.cooldown >= 0
 						? `Cooldown: ${this.state.cooldown}s`
 						: `Cooldown: ${-this.state.cooldown}s ago`}
 				</Cooldown>
 				<Movement>
 					<Button
-						onClick={() =>
-							this.setState({ autoDiscover: !this.state.autoDiscover })
-						}
+						onClick={() => {
+							this.setState({ autoDiscover: !this.state.autoDiscover });
+							console.log('autoDiscover', !this.state.autoDiscover);
+						}}
 					>
 						Discover Rooms
 					</Button>
