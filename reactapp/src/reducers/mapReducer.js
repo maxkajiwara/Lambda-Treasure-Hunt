@@ -129,7 +129,7 @@ const mapReducer = (state = initialState, action) => {
 				if (!move[1]) {
 					return move;
 				} else {
-					return [move[0], state.map[1].roomID];
+					return [move[0], state.map[move[1]].roomID];
 				}
 			});
 
