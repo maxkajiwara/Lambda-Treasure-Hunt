@@ -41,7 +41,7 @@ const Button = styled.button``;
 class Controls extends Component {
 	state = {
 		timer: null,
-		cooldown: 2,
+		cooldown: 999,
 		autoDiscover: false
 	};
 
@@ -257,7 +257,7 @@ class Controls extends Component {
 		const path = JSON.parse(localStorage.getItem('path'));
 
 		// Send map & path to the store and get current room
-		this.props.initialize(map, path);
+		this.props.initialize(map, path, this.cdReset);
 
 		// Get status
 		// this.props.checkStatus();

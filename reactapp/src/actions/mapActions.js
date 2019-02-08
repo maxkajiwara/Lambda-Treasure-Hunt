@@ -42,7 +42,7 @@ function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export const initialize = (map, path) => {
+export const initialize = (map, path, callback) => {
 	return dispatch => {
 		dispatch({ type: INIT });
 
@@ -55,6 +55,7 @@ export const initialize = (map, path) => {
 					type: INIT_SUCCESS,
 					payload: { currentRoom: data, map, path }
 				});
+				callback(data.cooldown);
 			})
 
 			.catch(error => dispatch({ type: INIT_ERROR, payload: error }));
