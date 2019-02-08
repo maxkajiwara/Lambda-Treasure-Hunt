@@ -9,9 +9,10 @@ import styled from 'styled-components';
 const MapContainer = styled.div`
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
-	max-width: 80%;
+	align-items: center;
+	width: 80%;
 	height: 70%;
+	margin: 0 0 20px;
 `;
 
 const MapFrame = styled.div`
@@ -21,6 +22,14 @@ const MapFrame = styled.div`
 	align-items: center;
 	width: 100%;
 	height: 100%;
+	/* border: 1px solid lightgray; */
+	margin: 20px 0;
+`;
+
+const MapWrapper = styled.div`
+	display: flex;
+	flex-direction: column;
+	border: 1px solid #1a1a1a;
 `;
 
 const Row = styled.div`
@@ -40,7 +49,16 @@ class Map extends Component {
 			for (let j = d.w; j <= d.e; j++) {
 				// console.log(`Room (${j},${i}):`, this.props.map[`(${j},${i})`]);
 				row.push(
-					<Room key={`(${j},${i})`} info={this.props.map[`(${j},${i})`]} />
+					<Room
+						key={`(${j},${i})`}
+						info={this.props.map[`(${j},${i})`]}
+						current={
+							this.props.map[`(${j},${i})`]
+								? this.props.currentRoom.room_id ===
+								  this.props.map[`(${j},${i})`].roomID
+								: false
+						}
+					/>
 				);
 			}
 			rows.push(<Row key={i}>{row}</Row>);
@@ -56,20 +74,28 @@ class Map extends Component {
 	render() {
 		return (
 			<MapContainer>
+				<MapFrame>
+					{!this.props.map.dimensions ? (
+						'Welcome, adventurer.'
+					) : (
+						<MapWrapper>{this.buildMap()}</MapWrapper>
+					)}
+				</MapFrame>
+
+				{'Current Room: ' +
+					(this.props.currentRoom.room_id
+						? `#${this.props.currentRoom.room_id} ${
+								this.props.currentRoom.coordinates
+						  }`
+						: '?')}
+				<br />
 				{'Rooms discovered: ' + Object.keys(this.props.map).length}
 				<br />
-				<MapFrame>
-					{!this.props.map.dimensions
-						? 'Welcome, adventurer.'
-						: this.buildMap()}
-				</MapFrame>
 				{'Path: ' + JSON.stringify(this.props.path)}
 				<br />
-				{/* {`Current Room: #${this.props.currentRoom.room_id} ${
-					this.props.currentRoom.coordinates
-				}`} */}
-				{'Cooldown: ' + this.props.cooldown}
-				<p>{`Current Room: ${JSON.stringify(this.props.currentRoom)}`}</p>
+				{`Current Cooldown: ${this.props.cooldown}s`}
+
+				{/* <p>{`Current Room: ${JSON.stringify(this.props.currentRoom)}`}</p> */}
 			</MapContainer>
 		);
 	}

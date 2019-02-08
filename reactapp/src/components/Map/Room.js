@@ -9,13 +9,21 @@ const RoomContainer = styled.div`
 	align-items: center;
 	width: 30px;
 	height: 30px;
-	background: gray;
-	border: 1px solid lightgray;
+	background: ${props =>
+		props.current ? '#b52f2f' : props.explored ? 'gray' : '#1a1a1a'};
+	font-size: 1.2rem;
+	font-weight: bold;
+	border: 1px solid #1a1a1a;
 `;
 
 const Room = props => {
 	return (
-		<RoomContainer>{props.info ? `${props.info.roomID}` : `-`}</RoomContainer>
+		<RoomContainer
+			current={props.current}
+			explored={props.info ? props.info.exits : false}
+		>
+			{props.info ? `${props.info.roomID}` : null}
+		</RoomContainer>
 	);
 };
 
