@@ -220,9 +220,9 @@ Happy hunting!
 
 #### Client
 
-- [ ] Create a standalone frontend app that communicates with the server via API calls
+- [x] Create a standalone frontend app that communicates with the server via API calls
 - [ ] Display a visual representation of the LambdaMUD Island map.
-- [ ] Automated server requests to handle cooldown and traverse the map
+- [x] Automated server requests to handle cooldown and traverse the map
 - [ ] Manual control override to move to specific locations on the map
 - [ ] Ability to pick up and sell discovered treasure
 
