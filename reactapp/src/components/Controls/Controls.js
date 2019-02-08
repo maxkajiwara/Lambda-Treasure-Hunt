@@ -56,12 +56,10 @@ class Controls extends Component {
 			if (this.props.path.length) {
 				// Move to the next room.
 				this.move(this.props.path[0]);
-			} else if (
-				this.props.currentRoom.coordinates !== undefined &&
-				!this.props.map[this.props.currentRoom.coordinates]
-			) {
-				this.addRoom();
-
+			} else if (this.props.currentRoom.coordinates !== undefined) {
+				if (!this.props.map[this.props.currentRoom.coordinates]) {
+					this.addRoom();
+				}
 				if (this.state.autoDiscover) {
 					// Trigger autoDiscover.
 					this.autoDiscover();
@@ -100,6 +98,8 @@ class Controls extends Component {
 		this.setState({
 			cooldown: cooldown || this.props.cooldown
 		});
+
+		this.addRoom();
 
 		// If autoDiscover is enabled:
 		if (
