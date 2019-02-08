@@ -41,7 +41,7 @@ const Button = styled.button``;
 class Controls extends Component {
 	state = {
 		timer: null,
-		cooldown: 0,
+		cooldown: 2,
 		autoDiscover: false
 	};
 
