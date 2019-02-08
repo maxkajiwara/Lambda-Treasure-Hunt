@@ -104,7 +104,7 @@ class Controls extends Component {
 		if (
 			this.state.autoDiscover &&
 			!this.props.path.length &&
-			this.props.currentRoom.room_id
+			this.props.currentRoom.room_id !== undefined
 		) {
 			// Trigger autoDiscover.
 			this.autoDiscover();
