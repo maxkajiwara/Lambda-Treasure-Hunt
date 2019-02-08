@@ -14,7 +14,7 @@ import {
 import styled, { css } from 'styled-components';
 
 const ControlsContainer = styled.div`
-	margin-bottom: 50px;
+	margin-bottom: 20px;
 `;
 
 const Cooldown = styled.h1`

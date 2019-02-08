@@ -11,7 +11,7 @@ const MapContainer = styled.div`
 	flex-direction: column;
 	align-items: center;
 	width: 80%;
-	height: 70%;
+	height: 75%;
 	margin: 0 0 20px;
 `;
 
@@ -40,6 +40,8 @@ class Map extends Component {
 	state = {};
 
 	buildMap = () => {
+		const path = this.props.path.map(room => room[1]);
+
 		// console.log('Building map...');
 		const d = this.props.map.dimensions;
 		let rows = [];
@@ -48,15 +50,19 @@ class Map extends Component {
 			let row = [];
 			for (let j = d.w; j <= d.e; j++) {
 				// console.log(`Room (${j},${i}):`, this.props.map[`(${j},${i})`]);
+
 				row.push(
 					<Room
 						key={`(${j},${i})`}
 						info={this.props.map[`(${j},${i})`]}
 						current={
-							this.props.map[`(${j},${i})`]
-								? this.props.currentRoom.room_id ===
-								  this.props.map[`(${j},${i})`].roomID
-								: false
+							this.props.map[`(${j},${i})`] &&
+							this.props.currentRoom.room_id ===
+								this.props.map[`(${j},${i})`].roomID
+						}
+						path={
+							this.props.map[`(${j},${i})`] &&
+							path.includes(this.props.map[`(${j},${i})`].roomID)
 						}
 					/>
 				);
@@ -84,7 +90,7 @@ class Map extends Component {
 
 				{'Current Room: ' +
 					(this.props.currentRoom.room_id
-						? `#${this.props.currentRoom.room_id} ${
+						? `${this.props.currentRoom.room_id} ${
 								this.props.currentRoom.coordinates
 						  }`
 						: '?')}
