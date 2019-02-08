@@ -132,11 +132,11 @@ class Controls extends Component {
 
 			exits.forEach(exit => {
 				const neighbor = this.props.map[this.getNeighbor(coords, exit)];
-				// console.log(
-				// 	`Neighbor ${exit} ${this.getNeighbor(coords, exit)} is ${
-				// 		neighbor ? 'known' : 'undiscovered'
-				// 	}`
-				// );
+				console.log(
+					`Neighbor ${exit} ${this.getNeighbor(coords, exit)} is ${
+						neighbor ? 'known' : 'undiscovered'
+					}`
+				);
 
 				// If neighbor is known:
 				if (neighbor) {
@@ -147,6 +147,8 @@ class Controls extends Component {
 						exit: this.anticompass(exit),
 						roomID
 					});
+				} else {
+					localExits[exit] = '?';
 				}
 			});
 
