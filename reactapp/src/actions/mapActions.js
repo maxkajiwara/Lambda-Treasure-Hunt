@@ -170,11 +170,11 @@ export const confirmSale = name => {
 	};
 };
 
-export const updateMap = (newRoom, connections, callback) => {
+export const updateMap = (newRoom, connections, dimensions, callback) => {
 	return dispatch => {
 		dispatch({
 			type: UPDATE_MAP,
-			payload: { newRoom, connections }
+			payload: { newRoom, connections, dimensions }
 		});
 		callback();
 	};

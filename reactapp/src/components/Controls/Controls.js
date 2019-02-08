@@ -11,7 +11,7 @@ import {
 	updatePath
 } from '../../actions';
 
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 const ControlsContainer = styled.div`
 	margin-bottom: 50px;
@@ -22,6 +22,12 @@ const Cooldown = styled.h1`
 	justify-content: center;
 	font-size: 2.4rem;
 	margin-bottom: 20px;
+
+	${props =>
+		props.yellow &&
+		css`
+			color: #e8ce7a;
+		`};
 `;
 
 const Movement = styled.div`
@@ -158,10 +164,23 @@ class Controls extends Component {
 
 			console.log("New room's exits:", localExits);
 
+			// Update map boundary for visualization
+			const [x, y] = coords.slice(1, -1).split(',');
+			const d = this.props.map.dimensions;
+			const dimensions = d
+				? {
+						n: y > d.n ? y : d.n,
+						s: y < d.s ? y : d.s,
+						e: x > d.e ? x : d.e,
+						w: x < d.w ? x : d.w
+				  }
+				: { n: y, s: y, e: x, w: x };
+
 			// Ship it off to the reducer.
 			this.props.updateMap(
 				{ coords, roomID, exits: localExits },
 				connections,
+				dimensions,
 				this.lsMap
 			);
 		}
@@ -189,7 +208,7 @@ class Controls extends Component {
 				//
 				for (let exit in room.exits) {
 					const neighborCoords = this.getNeighbor(roomCoords, exit);
-					console.log('neighborCoords', neighborCoords);
+					// console.log('neighborCoords', neighborCoords);
 
 					// Have we seen this room before? (during this search)
 					if (!visited.has(neighborCoords)) {
@@ -259,14 +278,14 @@ class Controls extends Component {
 	}
 
 	componentWillUnmount() {
-		this.clearInterval(this.state.timer);
+		clearInterval(this.state.timer);
 		localStorage.setItem('cooldown', JSON.stringify(this.state.cooldown));
 	}
 
 	render() {
 		return (
 			<ControlsContainer>
-				<Cooldown>
+				<Cooldown yellow={!this.props.busy && this.state.cooldown < 0}>
 					{this.props.busy
 						? 'Working...'
 						: this.state.cooldown >= 0
