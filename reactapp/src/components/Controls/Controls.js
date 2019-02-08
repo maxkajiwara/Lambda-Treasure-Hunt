@@ -56,15 +56,16 @@ class Controls extends Component {
 			if (this.props.path.length) {
 				// Move to the next room.
 				this.move(this.props.path[0]);
-			}
-
-			// // If autoDiscover is enabled:
-			else if (
-				this.state.autoDiscover &&
-				this.props.currentRoom.room_id !== undefined
+			} else if (
+				this.props.currentRoom.coordinates !== undefined &&
+				!this.props.map[this.props.currentRoom.coordinates]
 			) {
-				// Trigger autoDiscover.
-				this.autoDiscover();
+				this.addRoom();
+
+				if (this.state.autoDiscover) {
+					// Trigger autoDiscover.
+					this.autoDiscover();
+				}
 			}
 		}
 	};
@@ -115,17 +116,9 @@ class Controls extends Component {
 		this.props.move([direction, prediction], this.cdReset);
 	};
 
-	autoDiscover = () => {
-		console.log('autoDiscover triggered');
-
-		// Get coordinates.
+	addRoom = () => {
 		const coords = this.props.currentRoom.coordinates;
 
-		console.log('Current coords:', this.props.currentRoom.coordinates);
-
-		let move = [];
-
-		// If we have not discovered this room before:
 		if (!this.props.map[coords]) {
 			console.log('New room discovered!');
 
@@ -154,11 +147,6 @@ class Controls extends Component {
 						exit: this.anticompass(exit),
 						roomID
 					});
-				} else {
-					localExits[exit] = '?';
-					if (!move.length) {
-						move.push([exit]);
-					}
 				}
 			});
 
@@ -184,48 +172,55 @@ class Controls extends Component {
 				this.lsMap
 			);
 		}
+	};
 
-		if (!move.length) {
-			// Breadth first search for nearest room with unexplored exits
-			let visited = new Set();
-			// Just trust me on this one
-			let queue = [[[null, coords]]];
+	autoDiscover = () => {
+		console.log('autoDiscover triggered');
 
-			while (!move.length && queue.length && queue.length < 500) {
-				console.log('Paths in queue:', queue.length);
-				console.log('Rooms seen:', visited.size);
+		// Get coordinates.
+		const coords = this.props.currentRoom.coordinates;
 
-				// Dequeue a path
-				let path = queue.shift();
+		let move = [];
 
-				console.log('path', path);
+		// Breadth first search for nearest room with unexplored exits
+		let visited = new Set();
+		// Just trust me on this one
+		let queue = [[[null, coords]]];
 
-				// Get the last room in the path
-				const roomCoords = path[path.length - 1][1];
-				const room = this.props.map[roomCoords];
-				console.log('room', room);
+		while (!move.length && queue.length && queue.length < 500) {
+			console.log('Paths in queue:', queue.length);
+			console.log('Rooms seen:', visited.size);
 
-				//
-				for (let exit in room.exits) {
-					const neighborCoords = this.getNeighbor(roomCoords, exit);
-					// console.log('neighborCoords', neighborCoords);
+			// Dequeue a path
+			let path = queue.shift();
 
-					// Have we seen this room before? (during this search)
-					if (!visited.has(neighborCoords)) {
-						visited.add(neighborCoords);
+			console.log('path', path);
 
-						// Have we discovered this room?
-						if (!this.props.map[neighborCoords]) {
-							// Next path found. Ready to exit search.
-							move = [...path.slice(1), [exit]];
-						} else {
-							// Add the updated path to the queue
-							queue.push([...path, [exit, neighborCoords]]);
-						}
+			// Get the last room in the path
+			const roomCoords = path[path.length - 1][1];
+			const room = this.props.map[roomCoords];
+			console.log('room', room);
+
+			//
+			for (let exit in room.exits) {
+				const neighborCoords = this.getNeighbor(roomCoords, exit);
+				// console.log('neighborCoords', neighborCoords);
+
+				// Have we seen this room before? (during this search)
+				if (!visited.has(neighborCoords)) {
+					visited.add(neighborCoords);
+
+					// Have we discovered this room?
+					if (!this.props.map[neighborCoords]) {
+						// Next path found. Ready to exit search.
+						move = [...path.slice(1), [exit]];
+					} else {
+						// Add the updated path to the queue
+						queue.push([...path, [exit, neighborCoords]]);
 					}
-					// Exit search
-					if (move.length) break;
 				}
+				// Exit search
+				if (move.length) break;
 			}
 		}
 
