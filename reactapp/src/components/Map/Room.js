@@ -9,6 +9,7 @@ const RoomContainer = styled.div`
 	align-items: center;
 	width: 34px;
 	height: 34px;
+	cursor: ${props => (props.explored ? 'pointer' : 'default')};
 	background: ${props =>
 		props.current
 			? '#b52f2f'
@@ -55,7 +56,7 @@ const Room = props => {
 			current={props.current}
 			explored={props.info && props.info.exits}
 			path={props.path}
-			// title={props.info ? COORDS : NULL}
+			onClick={props.moveHere}
 		>
 			{props.info && `${props.info.roomID}`}
 		</RoomContainer>
