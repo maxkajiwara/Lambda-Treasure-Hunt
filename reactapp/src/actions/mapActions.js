@@ -50,7 +50,7 @@ export const initialize = (map, path) => {
 			.get('https://lambda-treasure-hunt.herokuapp.com/api/adv/init/')
 
 			.then(async ({ data }) => {
-				await sleep(1000);
+				// await sleep(1000);
 				dispatch({
 					type: INIT_SUCCESS,
 					payload: { currentRoom: data, map, path }
@@ -69,7 +69,7 @@ export const checkStatus = () => {
 			.post('https://lambda-treasure-hunt.herokuapp.com/api/adv/status/')
 
 			.then(async ({ data }) => {
-				await sleep(1000);
+				// await sleep(1000);
 				dispatch({ type: CHECK_STATUS_SUCCESS, payload: data });
 			})
 
@@ -88,7 +88,7 @@ export const move = ([direction, prediction], callback) => {
 			})
 
 			.then(async ({ data }) => {
-				await sleep(1000);
+				// await sleep(1000);
 				dispatch({ type: MOVE_SUCCESS, payload: data });
 				callback(data.cooldown);
 			})
@@ -107,7 +107,7 @@ export const takeTreasure = name => {
 			})
 
 			.then(async ({ data }) => {
-				await sleep(1000);
+				// await sleep(1000);
 				dispatch({ type: TAKE_TREASURE_SUCCESS, payload: data });
 			})
 
@@ -125,7 +125,7 @@ export const dropTreasure = name => {
 			})
 
 			.then(async ({ data }) => {
-				await sleep(1000);
+				// await sleep(1000);
 				dispatch({ type: DROP_TREASURE_SUCCESS, payload: data });
 			})
 
@@ -143,7 +143,7 @@ export const sellTreasure = name => {
 			})
 
 			.then(async ({ data }) => {
-				await sleep(1000);
+				// await sleep(1000);
 				dispatch({ type: SELL_TREASURE_SUCCESS, payload: data });
 			})
 
@@ -162,7 +162,7 @@ export const confirmSale = name => {
 			})
 
 			.then(async ({ data }) => {
-				await sleep(1000);
+				// await sleep(1000);
 				dispatch({ type: CONFIRM_SALE_SUCCESS, payload: data });
 			})
 
