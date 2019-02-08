@@ -170,20 +170,22 @@ export const confirmSale = name => {
 	};
 };
 
-export const updateMap = (newRoom, connections) => {
+export const updateMap = (newRoom, connections, callback) => {
 	return dispatch => {
 		dispatch({
 			type: UPDATE_MAP,
 			payload: { newRoom, connections }
 		});
+		callback();
 	};
 };
 
-export const updatePath = path => {
+export const updatePath = (path, callback) => {
 	return dispatch => {
 		dispatch({
 			type: UPDATE_PATH,
 			payload: path
 		});
+		callback();
 	};
 };

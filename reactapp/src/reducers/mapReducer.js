@@ -20,7 +20,8 @@ const initialState = {
 	map: {},
 	path: [],
 	currentRoom: {},
-	cooldown: 0
+	cooldown: 0,
+	busy: true
 };
 
 const mapReducer = (state = initialState, action) => {
@@ -29,7 +30,8 @@ const mapReducer = (state = initialState, action) => {
 		case INIT:
 			return {
 				...state,
-				Initializing: true
+				Initializing: true,
+				busy: true
 			};
 
 		case INIT_SUCCESS:
@@ -41,7 +43,8 @@ const mapReducer = (state = initialState, action) => {
 				currentRoom,
 				cooldown: currentRoom.cooldown,
 				map: map || {},
-				path: path || []
+				path: path || [],
+				busy: false
 			};
 
 		case INIT_ERROR:

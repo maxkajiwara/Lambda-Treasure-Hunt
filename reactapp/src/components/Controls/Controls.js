@@ -244,7 +244,7 @@ class Controls extends Component {
 		this.props.initialize(map, path);
 
 		// Get status
-		this.props.checkStatus();
+		// this.props.checkStatus();
 
 		// Get cooldown and timestamp of last action
 		// const cooldown = JSON.parse(localStorage.getItem('cooldown'));
