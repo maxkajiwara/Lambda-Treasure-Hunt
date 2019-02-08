@@ -7,8 +7,8 @@ const RoomContainer = styled.div`
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	width: 30px;
-	height: 30px;
+	width: 34px;
+	height: 34px;
 	background: ${props =>
 		props.current
 			? '#b52f2f'
@@ -21,32 +21,32 @@ const RoomContainer = styled.div`
 	font-weight: bold;
 
 	border-top: ${props =>
-		props.explored && props.explored.n
+		props.explored && props.explored.n !== undefined
 			? props.explored.n === '?'
-				? '2px solid red'
-				: '2px solid gray'
-			: '2px solid #1a1a1a'};
+				? '3px solid red'
+				: '3px solid #6b6b6b'
+			: '3px solid #1a1a1a'};
 
 	border-bottom: ${props =>
-		props.explored && props.explored.s
+		props.explored && props.explored.s !== undefined
 			? props.explored.s === '?'
-				? '2px solid red'
-				: '2px solid gray'
-			: '2px solid #1a1a1a'};
+				? '3px solid red'
+				: '3px solid #6b6b6b'
+			: '3px solid #1a1a1a'};
 
 	border-right: ${props =>
-		props.explored && props.explored.e
+		props.explored && props.explored.e !== undefined
 			? props.explored.e === '?'
-				? '2px solid red'
-				: '2px solid gray'
-			: '2px solid #1a1a1a'};
+				? '3px solid red'
+				: '3px solid #6b6b6b'
+			: '3px solid #1a1a1a'};
 
 	border-left: ${props =>
-		props.explored && props.explored.w
+		props.explored && props.explored.w !== undefined
 			? props.explored.w === '?'
-				? '2px solid red'
-				: '2px solid gray'
-			: '2px solid #1a1a1a'};
+				? '3px solid red'
+				: '3px solid #6b6b6b'
+			: '3px solid #1a1a1a'};
 `;
 
 const Room = props => {

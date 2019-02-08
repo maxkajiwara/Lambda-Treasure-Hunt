@@ -28,7 +28,7 @@ const MapFrame = styled.div`
 const MapWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
-	border: 2px solid #1a1a1a;
+	border: 3px solid #1a1a1a;
 `;
 
 const Row = styled.div`
