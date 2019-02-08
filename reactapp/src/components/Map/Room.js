@@ -7,8 +7,8 @@ const RoomContainer = styled.div`
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	width: 25px;
-	height: 25px;
+	width: 30px;
+	height: 30px;
 	background: ${props =>
 		props.current
 			? '#b52f2f'
@@ -23,30 +23,30 @@ const RoomContainer = styled.div`
 	border-top: ${props =>
 		props.explored && props.explored.n
 			? props.explored.n === '?'
-				? '1px solid red'
-				: '1px solid gray'
-			: '1px solid #1a1a1a'};
+				? '2px solid red'
+				: '2px solid gray'
+			: '2px solid #1a1a1a'};
 
 	border-bottom: ${props =>
 		props.explored && props.explored.s
 			? props.explored.s === '?'
-				? '1px solid red'
-				: '1px solid gray'
-			: '1px solid #1a1a1a'};
+				? '2px solid red'
+				: '2px solid gray'
+			: '2px solid #1a1a1a'};
 
 	border-right: ${props =>
 		props.explored && props.explored.e
 			? props.explored.e === '?'
-				? '1px solid red'
-				: '1px solid gray'
-			: '1px solid #1a1a1a'};
+				? '2px solid red'
+				: '2px solid gray'
+			: '2px solid #1a1a1a'};
 
 	border-left: ${props =>
 		props.explored && props.explored.w
 			? props.explored.w === '?'
-				? '1px solid red'
-				: '1px solid gray'
-			: '1px solid #1a1a1a'};
+				? '2px solid red'
+				: '2px solid gray'
+			: '2px solid #1a1a1a'};
 `;
 
 const Room = props => {

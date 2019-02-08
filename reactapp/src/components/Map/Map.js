@@ -10,8 +10,7 @@ const MapContainer = styled.div`
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	width: 80%;
-	height: 75%;
+	min-height: 700px;
 	margin: 0 0 20px;
 `;
 
@@ -29,7 +28,7 @@ const MapFrame = styled.div`
 const MapWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
-	border: 1px solid #1a1a1a;
+	border: 2px solid #1a1a1a;
 `;
 
 const Row = styled.div`

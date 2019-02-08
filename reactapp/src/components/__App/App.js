@@ -10,7 +10,7 @@ import { Home } from '../../components';
 const AppContainer = styled.div`
 	display: flex;
 	max-width: 1280px;
-	height: 100vh;
+	/* height: 100vh; */
 	color: white;
 	background: #1a1a1a;
 	margin: 0 auto;
