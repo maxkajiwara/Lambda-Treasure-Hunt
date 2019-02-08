@@ -47,7 +47,7 @@ class Controls extends Component {
 
 	tick = () => {
 		this.setState({
-			cooldown: this.state.cooldown - 1
+			cooldown: this.state.cooldown - 0.1
 		});
 
 		// If cooldown has expired and we're not awaiting a response:
@@ -267,7 +267,7 @@ class Controls extends Component {
 		// Get traversal
 		// const traversal = JSON.parse(localStorage.getItem('traversal'));
 
-		const timer = setInterval(this.tick, 1000);
+		const timer = setInterval(this.tick, 100);
 
 		this.setState({
 			timer
@@ -286,8 +286,8 @@ class Controls extends Component {
 					{this.props.busy
 						? 'Working...'
 						: this.state.cooldown >= 0
-						? `Cooldown: ${this.state.cooldown}s`
-						: `Cooldown: ${-this.state.cooldown}s ago`}
+						? `Cooldown: ${this.state.cooldown.toFixed(0)}s`
+						: `Cooldown: ${-this.state.cooldown.toFixed(0)}s ago`}
 				</Cooldown>
 				<Movement>
 					<Button
