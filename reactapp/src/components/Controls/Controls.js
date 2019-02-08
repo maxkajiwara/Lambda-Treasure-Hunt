@@ -44,7 +44,7 @@ class Controls extends Component {
 			cooldown: this.state.cooldown - 1
 		});
 
-		// If cooldown has expired and not we're not awaiting a response:
+		// If cooldown has expired and we're not awaiting a response:
 		if (this.state.cooldown <= 0 && !this.props.busy) {
 			// If there's a path to follow:
 			if (this.props.path.length) {
@@ -68,6 +68,7 @@ class Controls extends Component {
 		// Turn the strings into numbers to prevent Bad Things from happening
 		x = +x;
 		y = +y;
+
 		const neighbor = {
 			n: `(${x},${y + 1})`,
 			s: `(${x},${y - 1})`,
@@ -85,6 +86,9 @@ class Controls extends Component {
 	};
 
 	cdReset = cooldown => {
+		// Update localStorage
+		this.lsPath();
+
 		// Reset the cooldown timer
 		this.setState({
 			cooldown: cooldown || this.props.cooldown
@@ -154,16 +158,12 @@ class Controls extends Component {
 
 			console.log("New room's exits:", localExits);
 
-			// This is returning numbers for some reason - 0, 1, 2, 3
-			// for (let exit in Object.keys(localExits)) {
-			// 	if (localExits[exit] === '?') {
-			// 		move = [[exit]];
-			// 		break;
-			// 	}
-			// }
-
 			// Ship it off to the reducer.
-			this.props.updateMap({ coords, roomID, exits: localExits }, connections);
+			this.props.updateMap(
+				{ coords, roomID, exits: localExits },
+				connections,
+				this.lsMap
+			);
 		}
 
 		if (!move.length) {
@@ -172,47 +172,39 @@ class Controls extends Component {
 			// Just trust me on this one
 			let queue = [[[null, coords]]];
 
-			while (!move.length && queue.length) {
-				// Dequeue a path
-				console.log('queue length', queue.length);
+			while (!move.length && queue.length && queue.length < 500) {
+				console.log('Paths in queue:', queue.length);
+				console.log('Rooms seen:', visited.size);
 
+				// Dequeue a path
 				let path = queue.shift();
 
 				console.log('path', path);
 
-				// Get the last room in the path so far
+				// Get the last room in the path
 				const roomCoords = path[path.length - 1][1];
 				const room = this.props.map[roomCoords];
 				console.log('room', room);
 
+				//
 				for (let exit in room.exits) {
 					const neighborCoords = this.getNeighbor(roomCoords, exit);
 					console.log('neighborCoords', neighborCoords);
 
+					// Have we seen this room before? (during this search)
 					if (!visited.has(neighborCoords)) {
-						let newPath = [...path, [exit, neighborCoords]];
-						console.log('newPath', newPath);
+						visited.add(neighborCoords);
 
-						const neighbor = this.props.map[neighborCoords];
-
-						if (neighbor) {
-							console.log('Checking exits', neighbor.exits);
-
-							Object.entries(neighbor.exits).forEach(([key, value]) => {
-								if (value === '?') {
-									console.log('Found an unexplored exit.', key);
-									if (!move.length) {
-										move = [...newPath.slice(1), [key]];
-									}
-								} else {
-									queue.push(newPath);
-								}
-							});
+						// Have we discovered this room?
+						if (!this.props.map[neighborCoords]) {
+							// Next path found. Ready to exit search.
+							move = [...path.slice(1), [exit]];
 						} else {
-							move = [...newPath.slice(1, -1), [exit]];
+							// Add the updated path to the queue
+							queue.push([...path, [exit, neighborCoords]]);
 						}
-						if (move.length) break;
 					}
+					// Exit search
 					if (move.length) break;
 				}
 			}
@@ -221,7 +213,7 @@ class Controls extends Component {
 		if (move.length) {
 			console.log('Next path:', move[0]);
 
-			this.props.updatePath(move);
+			this.props.updatePath(move, this.lsPath);
 		} else {
 			this.setState({
 				autoDiscover: false,
@@ -233,7 +225,15 @@ class Controls extends Component {
 		}
 	};
 
-	// localStorage.setItem('map', JSON.stringify(this.state.map)
+	// Update localStorage map
+	lsMap = () => {
+		localStorage.setItem('map', JSON.stringify(this.props.map));
+	};
+
+	// Update localStorage path
+	lsPath = () => {
+		localStorage.setItem('path', JSON.stringify(this.props.path));
+	};
 
 	componentDidMount() {
 		// Get info from localStorage
@@ -246,8 +246,9 @@ class Controls extends Component {
 		// Get status
 		this.props.checkStatus();
 
-		// get cooldown and timestamp of last action
+		// Get cooldown and timestamp of last action
 		// const cooldown = JSON.parse(localStorage.getItem('cooldown'));
+		// Get traversal
 		// const traversal = JSON.parse(localStorage.getItem('traversal'));
 
 		const timer = setInterval(this.tick, 1000);
@@ -290,7 +291,7 @@ class Controls extends Component {
 					<Button>Auto Sell</Button>
 					<Button>Set Max Encumbrance</Button>
 					<Button onClick={this.props.checkStatus}>Update Status</Button>
-					<Button>Choose a Name</Button>
+					<Button>Change Name</Button>
 				</Actions>
 			</ControlsContainer>
 		);
