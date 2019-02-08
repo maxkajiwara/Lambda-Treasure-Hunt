@@ -124,6 +124,8 @@ class Map extends Component {
 			const room = this.props.map[roomCoords];
 			console.log('room', room);
 
+			if (!room) continue;
+
 			//
 			for (let exit in room.exits) {
 				const neighborCoords = this.getNeighbor(roomCoords, exit);
