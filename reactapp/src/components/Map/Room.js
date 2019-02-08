@@ -48,6 +48,8 @@ const RoomContainer = styled.div`
 				? '3px solid red'
 				: '3px solid #6b6b6b'
 			: '3px solid #1a1a1a'};
+
+	border-radius: 5px;
 `;
 
 const Room = props => {
